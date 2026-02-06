@@ -231,4 +231,4 @@ Les exécutions du pipeline sont accessibles dans l'onglet Actions du repository
 
 ## Licence
 
-Projet académique - EPSI 2025
+Projet académique - EPSI 2026
