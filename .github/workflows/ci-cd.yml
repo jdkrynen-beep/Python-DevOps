@@ -55,7 +55,7 @@ jobs:
           echo " Vérification de la taille de l'image Docker"
           docker images inventory-api:test --format "{{.Repository}}:{{.Tag}} -> {{.Size}}"
 
-          SIZE=$(docker images inventory-api:test --format "{{.Size}}"
+          SIZE=$(docker images inventory-api:test --format "{{.Size}}")
           echo "Taille actuelle : $SIZE"
           echo "Limite maximale: 100 MB"
           echo " Vérifiez manuellement que la taille est < 100MB"
