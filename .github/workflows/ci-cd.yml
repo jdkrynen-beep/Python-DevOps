@@ -30,7 +30,7 @@ jobs:
       # Étape 4 : Vérifier la qualité du code avec Flake8
       - name: Run Flake8
         run: | 
-        flake8 app/ --max-line-length=120 --exclude=__pycache__
+          flake8 app/ --max-line-length=120 --exclude=__pycache__
 
       # Étape 5 : Lancer les tests PyTest 
       - name: Run PyTest
