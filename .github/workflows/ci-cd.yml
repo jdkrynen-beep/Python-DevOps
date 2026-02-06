@@ -92,7 +92,7 @@ jobs:
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
 
-  # JOB 3 : PR automatique dev → main
+  # JOB 3 : PR automatique dev
   create-pr:
     name: PR Automatique
     runs-on: ubuntu-latest
@@ -107,6 +107,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh pr create --base main --head dev --title "[AUTO] Merge dev into main" --body "PR automatique - Tests OK, Flake8 OK, Docker OK, Trivy OK" || echo "PR already exists"
+  
+
   # JOB 4 : Deploiement Production
   deploy-production:
     name: Deploiement Production
