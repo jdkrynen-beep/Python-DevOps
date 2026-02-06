@@ -5,35 +5,85 @@ on:
     branches: [dev]
 
 jobs:
-  # ═════════════════════════════════════════════════════════
+  
   # JOB 1 : Tests & Qualité
-  # ═════════════════════════════════════════════════════════
+
   tests:
     name: Tests & Qualité
     runs-on: ubuntu-latest
     steps:
-      # Étape 1 : Récupérer le code du repo
+      
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Étape 2 : Installer les dépendances Python
+      
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # Étape 3 : Installer les dépendances Python
+      
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
-      # Étape 4 : Vérifier la qualité du code avec Flake8
+      
       - name: Run Flake8
         run: | 
-          flake8 app/ --max-line-length=120 --exclude=__pycache__
-
-      # Étape 5 : Lancer les tests PyTest 
+          flake8 app/ --count --max-line-length=100 --statistics --exclude=__pycache__
+    
       - name: Run PyTest
         run: |
           pytest tests/ -v
-  
+
+  # JOB 2 : Build & Securité
+  build:
+    name: Build & Securité
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Build Docker Image
+        run: |
+          docker build -t inventory-api:test .
+      
+      - name: Check image size
+        run: |
+          echo " Vérification de la taille de l'image Docker"
+          docker images inventory-api:test --format "{{.Repository}}:{{.Tag}} -> {{.Size}}"
+
+          SIZE=$(docker images inventory-api:test --format "{{.Size}}")
+          echo "Taille actuelle : $SIZE"
+          echo "Limite maximale: 100 MB"
+          echo " Vérifiez manuellement que la taille est < 100MB"
+
+      - name: Test API in container
+        run: |
+          echo "Lancement des tests du container"
+          docker run -d --name test-api -p 5000:5000 inventory-api:test
+          echo "Attente du démarrage de l'API (10 secondes)"
+          sleep 10
+
+          echo "Test endpoint /health"
+          curl -f "http://localhost:5000/api/v1/health" || exit 1
+
+          echo "Test endpoint /servers"
+          curl -f "http://localhost:5000/api/v1/servers" || exit 1
+
+          echo "Test endpoint /servers/1"
+          curl -f "http://localhost:5000/api/v1/servers/1" || exit 1
+
+          echo "Tous les tests du container ont réussi"
+          docker stop test-api
+          docker rm test-api
+
+      - name: Run Trivy security scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'inventory-api:test'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
