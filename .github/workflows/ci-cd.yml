@@ -87,3 +87,27 @@ jobs:
           format: 'table'
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
+
+  # JOB 3 : PR automatique dev → main
+  create-pr:
+    name: Create Pull Request
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create PR dev → main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr create \
+            --base main \
+            --head dev \
+            --title "[AUTO] Merge dev → main" \
+            --body "PR automatique créée par le pipeline CI/CD.
+          - Tests passés
+          - Flake8 OK
+          - Docker build OK
+          - Trivy scan OK" \
+          || echo "PR already exists"
