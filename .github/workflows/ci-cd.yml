@@ -1,0 +1,39 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [dev][main]
+
+jobs:
+  # ═════════════════════════════════════════════════════════
+  # JOB 1 : Tests & Qualité
+  # ═════════════════════════════════════════════════════════
+  tests:
+  name: Tests & Qualité
+  runs-on: ubuntu-latest
+  steps:
+    # Étape 1 : Récupérer le code du repo
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # Étape 2 : Installer les dépendances Python
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    # Étape 3 : Installer les dépendances Python
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    # Étape 4 : Vérifier la qualité du code avec Flake8
+    - name: Run Flake8
+      run: | 
+       flake8 app/ --max-line-length=120 --exclude=__pycache__
+
+    # Étape 5 : Lancer les tests PyTest 
+    - name: Run PyTest
+      run: |
+        pytest tests/ -v
+ 
