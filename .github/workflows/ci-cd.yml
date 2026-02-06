@@ -53,7 +53,7 @@ jobs:
       - name: Check image size
         run: |
           echo " Vérification de la taille de l'image Docker"
-          docker images inventory-api:test --format "{{.Repository}}:{{.Taf}} -> {{.Size}}"
+          docker images inventory-api:test --format "{{.Repository}}:{{.Tag}} -> {{.Size}}"
 
           SIZE=$(docker images inventory-api:test --format "{{.Size}}"
           echo "Taille actuelle : $SIZE"
